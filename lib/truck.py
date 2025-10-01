@@ -1,5 +1,12 @@
 from typing import List, Dict, Tuple, Any, Optional, Iterable
-from part import Part
+import part as part_mod
+
+# part class
+import importlib
+importlib.reload(part_mod)
+Part = part_mod.Part
+
+
 
 # list of parts constituting one truck (part_type, count)
 DEFAULT_PART_LIST: List[Tuple[str, int]] = [
@@ -56,10 +63,24 @@ class Truck:
     # update operating conditions
     def update_conditions(self):
         pass
+    
+    # increment truck age and its parts ages
+    def increment_age(self, delta_t: int):
+        self.age += delta_t
+        for part in self.parts:
+            part.age += delta_t
 
     # daily checkup on each part 
-    def checkup_parts(self):
-        pass
+    def checkup_parts(self, day: int, delta_t: int):
+        events = []
+        for part in self.parts:
+            ev = part.evaluate_failure(delta_t=delta_t, day=day,
+                                       truck_id=self.truck_id,
+                                       model_id=self.model_id,
+                                       truck_age=self.age)
+            if ev:
+                events.append(ev)
+        return events
     
 
 # create multiple trucks fleet
