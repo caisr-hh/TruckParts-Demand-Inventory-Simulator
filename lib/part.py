@@ -25,7 +25,8 @@ class Part:
     # evaluate failure model
     def evaluate_failure(self, delta_t: int, day: int, truck_id: str,
                          model_id: str, truck_age: int):
-        failure_prob = self.step_prob_exp(delta_t=delta_t)
+        # failure_prob = self.step_prob_func(delta_t=delta_t)
+        failure_prob = self.hazard_func()
         # if failure occurs:
         if np.random.uniform() < failure_prob:
             ev = DemandEvent(
@@ -46,12 +47,12 @@ class Part:
         self.age = 0
     
     # hazard function: exponential model
-    def hazard_func_exp(self):
+    def hazard_func(self):
         p = self.lambda0
         return p
 
     # evaluation with step probability (conditional probability)
-    def step_prob_exp(self, delta_t: int = 1):
+    def step_prob_func(self, delta_t: int = 1):
         p = 1 - np.exp(-self.lambda0*delta_t)
         return p
     
