@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 @dataclass (frozen=True)    # 
 class DemandEvent:
-    day: int
+    time: int
     truck_id: str
     model_id: str
     truck_age: int

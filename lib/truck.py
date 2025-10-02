@@ -65,16 +65,17 @@ class Truck:
         pass
     
     # increment truck age and its parts ages
-    def increment_age(self, delta_t: int):
-        self.age += delta_t
+    def increment_age(self, delta_time: int):
+        self.age += delta_time
         for part in self.parts:
-            part.age += delta_t
+            part.age += delta_time
 
     # daily checkup on each part 
-    def checkup_parts(self, day: int, delta_t: int):
+    def checkup_parts(self, time: int, delta_time: int):
         events = []
         for part in self.parts:
-            ev = part.evaluate_failure(delta_t=delta_t, day=day,
+            # print(time)
+            ev = part.evaluate_failure(time=time, delta_time=delta_time, 
                                        truck_id=self.truck_id,
                                        model_id=self.model_id,
                                        truck_age=self.age)

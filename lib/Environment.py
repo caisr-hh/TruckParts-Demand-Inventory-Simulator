@@ -12,25 +12,41 @@ class SimulationConfig:
 
 
 class Simulator:
-    def __init__(self, config: SimulationConfig,
-                  fleet: Optional[List[Truck]] = None):
+    def __init__(self, config: SimulationConfig, n_trucks: int):
         self.config = config
-        self.fleet: List[Truck] = fleet or []
+        self.fleet: List[Truck] = self.create_fleet(n_trucks)
         self.events: list = []
+
+    # create multiple trucks fleet
+    def create_fleet(self, n_trucks: int, model_id: str = "M0", 
+                    id_prefix: str = "T", 
+                    PART_LIST: Optional[Iterable[Tuple[str,int]]] = None,
+                    MTTF_DAYS: Optional[Dict[str, float]] = None) -> List[Truck]:
+        fleet: List[Truck] = []
+        for i in range(n_trucks):
+            truck_id = f"{id_prefix}{i:03d}"    # the truck indentifier
+            fleet.append(Truck(
+                truck_id=truck_id,
+                model_id=model_id,
+                auto_part_setting=True,
+                PART_LIST=PART_LIST,
+                MTTF_DAYS=MTTF_DAYS
+            ))
+        return fleet
     
     def run(self):
-        day = 0     # current date (elapesed day)
-        while day < self.config.total_time:
+        time = 0     # current time (elapesed time)
+        while time < self.config.total_time:
             for truck in self.fleet:
                 # evaluate part failure 
-                evs = truck.checkup_parts(day=day, delta_t=self.config.delta_time)
+                evs = truck.checkup_parts(time=time, delta_time=self.config.delta_time)
                 self.events.extend(evs)
 
                 # increment truck age
-                truck.increment_age(delta_t=self.config.delta_time)
+                truck.increment_age(delta_time=self.config.delta_time)
 
             # increment elapse time
-            day += self.config.delta_time
+            time += self.config.delta_time
         return self.events
 
     

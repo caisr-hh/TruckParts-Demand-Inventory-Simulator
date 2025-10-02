@@ -17,7 +17,7 @@ class DataArrange:
             row = asdict(ev) if is_dataclass(ev) else dict(ev)
             rows.append(row)
         events_df = pd.DataFrame(rows)
-        events_df["date"] = (start_time + pd.to_timedelta(events_df["day"], unit="D")).dt.floor("D")
+        events_df["date"] = (start_time + pd.to_timedelta(events_df["time"], unit="D")).dt.floor("D")
         return events_df
     
     # daily demand data for each part
