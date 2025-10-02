@@ -14,11 +14,11 @@ class SimulationConfig:
 class Simulator:
     def __init__(self, config: SimulationConfig, n_trucks: int):
         self.config = config
-        self.fleet: List[Truck] = self.create_fleet(n_trucks)
+        self.fleet: List[Truck] = self.generate_fleet(n_trucks)
         self.events: list = []
 
-    # create multiple trucks fleet
-    def create_fleet(self, n_trucks: int, model_id: str = "M0", 
+    # generate multiple trucks fleet
+    def generate_fleet(self, n_trucks: int, model_id: str = "M0", 
                     id_prefix: str = "T", 
                     PART_LIST: Optional[Iterable[Tuple[str,int]]] = None,
                     MTTF_DAYS: Optional[Dict[str, float]] = None) -> List[Truck]:
