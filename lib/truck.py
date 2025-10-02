@@ -16,13 +16,15 @@ DEFAULT_PART_LIST: List[Tuple[str, int]] = [
     ("battery", 1)
 ]
 
-# dictionary of MTTF (average lifetime) of each part
-DEFAULT_MTTF_DAYS: Dict[str, float] = {
-    "tire": 300,
-    "brake_pad": 200,
-    "oil_filter": 50,
-    "battery": 350
+# dictionary of failure model
+DEFAULT_FAILURE_MODEL = {
+    "tire": {"kind": "exponential", "params": {"MTTF": 300}},
+    "brake_pad": {"kind": "exponential", "params": {"MTTF": 200}},
+    "oil_filter": {"kind": "exponential", "params": {"MTTF": 50}},
+    "battery": {"kind": "exponential", "params": {"MTTF": 350}}
 }
+
+
 
 # allocate part id
 def mk_part_id(truck_id: str, part_type: str, idx: int) -> str:
@@ -33,7 +35,7 @@ class Truck:
     def __init__(self, truck_id: str, model_id: str, 
                  auto_part_setting: bool = True,
                  PART_LIST: Optional[Iterable[Tuple[str,int]]] = None,
-                 MTTF_DAYS: Optional[Dict[str, float]] = None ):
+                 FAILURE_MODEL: Optional[dict] = None):
         # identifier of this truck
         self.truck_id: str = truck_id
         self.model_id: str = model_id
@@ -45,19 +47,20 @@ class Truck:
         self.parts: List[Part] = []
         if auto_part_setting:
             self.attach_part(PART_LIST=list(PART_LIST) if PART_LIST is not None else DEFAULT_PART_LIST,
-                MTTF=MTTF_DAYS or DEFAULT_MTTF_DAYS)
+                FAILURE_MODEL=FAILURE_MODEL or DEFAULT_FAILURE_MODEL)
     
     # attach part to this truck
     def attach_part(self, PART_LIST: Iterable[Tuple[str,int]], 
-                    MTTF: Dict[str, float]) -> None:
+                    FAILURE_MODEL: dict) -> None:
         for part_type, count in PART_LIST:
-            mttf = MTTF[part_type]  # MTTF of the part
+            failure_model = FAILURE_MODEL[part_type]
             for i in range(count):
                 # allocate part id
                 part_id = mk_part_id(self.truck_id, part_type, i)
 
                 # attach part
-                self.parts.append(Part(part_id=part_id, part_type=part_type, mttf=mttf))
+                self.parts.append(Part(part_id=part_id, 
+                                       part_type=part_type, failure_model=failure_model))
 
 
     # update operating conditions

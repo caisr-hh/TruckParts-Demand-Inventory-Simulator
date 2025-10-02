@@ -21,7 +21,7 @@ class Simulator:
     def generate_fleet(self, n_trucks: int, model_id: str = "M0", 
                     id_prefix: str = "T", 
                     PART_LIST: Optional[Iterable[Tuple[str,int]]] = None,
-                    MTTF_DAYS: Optional[Dict[str, float]] = None) -> List[Truck]:
+                    FAILURE_MODEL: Optional[dict] = None) -> List[Truck]:
         fleet: List[Truck] = []
         for i in range(n_trucks):
             truck_id = f"{id_prefix}{i:03d}"    # the truck indentifier
@@ -30,7 +30,7 @@ class Simulator:
                 model_id=model_id,
                 auto_part_setting=True,
                 PART_LIST=PART_LIST,
-                MTTF_DAYS=MTTF_DAYS
+                FAILURE_MODEL=FAILURE_MODEL
             ))
         return fleet
     
