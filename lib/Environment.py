@@ -28,7 +28,7 @@ class Simulator:
             fleet.append(Truck(
                 truck_id=truck_id,
                 model_id=model_id,
-                auto_part_setting=True,
+                part_setting="RANDOM",
                 PART_LIST=PART_LIST,
                 FAILURE_MODEL=FAILURE_MODEL
             ))

@@ -12,7 +12,10 @@ DemandEvent = ev_mod.DemandEvent
 # Failure Model class
 import importlib
 importlib.reload(fmodel_md)
-ExponentialModel = fmodel_md.ExponentialModel
+Exponential = fmodel_md.ExponentialModel
+Weibull = fmodel_md.WeibullModel
+LogLogistic = fmodel_md.LogLogisticModel
+Gompertz = fmodel_md.GompertzModel
 
 
 # One Part
@@ -33,9 +36,13 @@ class Part:
     
     def make_failure_model(self, kind: str, params: dict):
         if kind == "exponential":
-            base = ExponentialModel(mttf = params["MTTF"])
+            base = Exponential(mttf = params["MTTF"])
         elif kind == "weibull":
-            pass
+            base = Weibull(lambda0=params["lambda0"], alpha0=params["alpha0"])
+        elif kind == "log-logstic":
+            base = LogLogistic(lambda0=params["lambda0"], alpha0=params["alpha0"])
+        elif kind == "gompertz":
+            base = Gompertz(lambda0=params["lambda0"], alpha0=params["alpha0"])
         return base
 
 
@@ -46,7 +53,7 @@ class Part:
     # evaluate failure model
     def evaluate_failure(self, time: int, delta_time: int, truck_id: str,
                          model_id: str, truck_age: int):
-        failure_prob = self.failure_model.hazard_func(time = time, delta_time = delta_time)
+        failure_prob = self.failure_model.hazard_func(time = time)
         # failure occurs:
         if np.random.uniform() < failure_prob:
             ev = DemandEvent(
