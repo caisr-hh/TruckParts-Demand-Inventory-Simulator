@@ -8,28 +8,11 @@ importlib.reload(part_mod)
 Part = part_mod.Part
 
 
-
-# list of parts constituting one truck (part_type, count)
-DEFAULT_PART_LIST: List[Tuple[str, int]] = [
-    ("tire", 10),
-    ("brake_pad", 2),
-    ("oil_filter", 1),
-    ("battery", 1)
-]
-
-# dictionary of failure model for default parts
-DEFAULT_PART_FAILURE_MODEL = {
-    "tire": {"kind": "exponential", "params": {"MTTF": 100}},
-    "brake_pad": {"kind": "weibull", "params": {"lambda0": 1/200, "alpha0": 1.5}},
-    "oil_filter": {"kind": "log-logstic", "params": {"lambda0": 1/200, "alpha0": 2.5}},
-    "battery": {"kind": "gompertz", "params": {"lambda0": 1/100, "alpha0": 1/1000}}
-}
-
-# dictionary of available failure model
-AVAILABLE_PART_MODEL = {
+# dictionary of failure model fixed parameters
+MODEL_FIXEDPARAMS = {
     "exponential": {"MTTF": 100},
     "weibull": {"lambda0": 1/200, "alpha0": 1.5},
-    "log-logstic": {"lambda0": 1/200, "alpha0": 2.5},
+    "log-logistic": {"lambda0": 1/200, "alpha0": 2.5},
     "gompertz": {"lambda0": 1/100, "alpha0": 1/1000}
 }
 
@@ -40,14 +23,12 @@ def mk_default_part_id(truck_id: str, part_type: str, idx: int) -> str:
 
 # allocate part id
 def mk_part_id(truck_id: str, part_type: int) -> str:
-    return f"{truck_id}-{part_type:03d}"
+    return f"{truck_id}-{part_type}"
 
 
 class Truck:
-    def __init__(self, truck_id: str, model_id: str, n_parts: int=10,
-                 part_setting: str = "RANDOM",
-                 PART_LIST: Optional[Iterable[Tuple[str,int]]] = None,
-                 FAILURE_MODEL: Optional[dict] = None):
+    def __init__(self, truck_id: str, model_id: str,
+                 PART_DICT: dict, part_setting: str = "RANDOM"):
         # identifier of this truck
         self.truck_id: str = truck_id
         self.model_id: str = model_id
@@ -58,39 +39,19 @@ class Truck:
         # parts constituting this truck
         self.parts: List[Part] = []
         if part_setting == "RANDOM":        # random setting 
-            self.attach_random_part(n_parts=n_parts, FAILURE_MODEL=FAILURE_MODEL or AVAILABLE_PART_MODEL)
-        elif part_setting == "DEFAULT":     # default setting from DEFAULT_PART_LIST
-            self.attach_default_part(PART_LIST=list(PART_LIST) if PART_LIST is not None else DEFAULT_PART_LIST,
-                FAILURE_MODEL=FAILURE_MODEL or DEFAULT_PART_FAILURE_MODEL)
+            self.attach_random_part(PART_DICT=PART_DICT, MODEL_PARAMS=MODEL_FIXEDPARAMS)
     
     # attach parts to the truck
-    def attach_random_part(self, n_parts: int, FAILURE_MODEL: dict):
-        for i in range(n_parts):
-            model_kind = random.choice(list(FAILURE_MODEL.keys()))
-
-            # part identifier (type, id)
-            part_type = i
+    def attach_random_part(self, PART_DICT: dict, MODEL_PARAMS: dict):
+        for part_type in PART_DICT.keys():
+            # part information
             part_id = mk_part_id(self.truck_id, part_type)
-
+            model_kind = PART_DICT[part_type]["failure_model"]
+            
             # attach part
             self.parts.append(Part(part_id=part_id, 
                                 part_type=part_type, 
-                                failure_model={"kind": model_kind, "params":FAILURE_MODEL[model_kind]}))
-
-
-    # attach default parts to the truck
-    def attach_default_part(self, PART_LIST: Iterable[Tuple[str,int]], 
-                    FAILURE_MODEL: dict) -> None:
-        for part_type, count in PART_LIST:
-            failure_model = FAILURE_MODEL[part_type]
-            for i in range(count):
-                # allocate part id
-                part_id = mk_default_part_id(self.truck_id, part_type, i)
-
-                # attach part
-                self.parts.append(Part(part_id=part_id, 
-                                       part_type=part_type, failure_model=failure_model))
-
+                                failure_model={"kind": model_kind, "params":MODEL_PARAMS[model_kind]}))
 
     # update operating conditions
     def update_conditions(self):

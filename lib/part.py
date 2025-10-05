@@ -39,7 +39,7 @@ class Part:
             base = Exponential(mttf = params["MTTF"])
         elif kind == "weibull":
             base = Weibull(lambda0=params["lambda0"], alpha0=params["alpha0"])
-        elif kind == "log-logstic":
+        elif kind == "log-logistic":
             base = LogLogistic(lambda0=params["lambda0"], alpha0=params["alpha0"])
         elif kind == "gompertz":
             base = Gompertz(lambda0=params["lambda0"], alpha0=params["alpha0"])
