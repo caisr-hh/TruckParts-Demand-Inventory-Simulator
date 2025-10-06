@@ -53,7 +53,8 @@ class Part:
     # evaluate failure model
     def evaluate_failure(self, time: int, delta_time: int, truck_id: str,
                          model_id: str, truck_age: int):
-        failure_prob = self.failure_model.hazard_func(time = time)
+        # failure_prob = self.failure_model.hazard_func(time = time)
+        failure_prob = self.failure_model.step_prob_func(time = time, delta_time = delta_time)
         # failure occurs:
         if np.random.uniform() < failure_prob:
             ev = DemandEvent(
