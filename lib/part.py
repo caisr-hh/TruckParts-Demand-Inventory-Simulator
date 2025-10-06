@@ -7,7 +7,7 @@ import FailureModel as fmodel_md
 # Event class
 import importlib
 importlib.reload(ev_mod)
-DemandEvent = ev_mod.DemandEvent
+FailureData = ev_mod.FailureData
 
 # Failure Model class
 import importlib
@@ -20,8 +20,10 @@ Gompertz = fmodel_md.GompertzModel
 
 # One Part
 class Part:
-    def __init__(self, part_id: str, part_type: str, 
+    def __init__(self, seed: int, part_id: str, part_type: str, 
                  failure_model: dict):
+        self.rng = np.random.default_rng(seed)
+
         # identifier of the part
         self.part_id: str = part_id
         self.part_type: str = part_type
@@ -56,19 +58,32 @@ class Part:
         # failure_prob = self.failure_model.hazard_func(time = time)
         failure_prob = self.failure_model.step_prob_func(time = time, delta_time = delta_time)
         # failure occurs:
-        if np.random.uniform() < failure_prob:
-            ev = DemandEvent(
+        if self.rng.random() < failure_prob:
+            ev = FailureData(
                 time=time,
                 truck_id=truck_id,
                 model_id=model_id,
                 truck_age=truck_age,
                 part_id=self.part_id,
                 part_type=self.part_type,
-                part_age=self.age
-            )            
+                part_age=self.age,
+                failure=1
+            )             
             self.reset_age()
             return ev
-        return None
+        
+        # failure doesn't occur
+        ev = FailureData(
+            time=time,
+            truck_id=truck_id,
+            model_id=model_id,
+            truck_age=truck_age,
+            part_id=self.part_id,
+            part_type=self.part_type,
+            part_age=self.age,
+            failure=0
+        )
+        return ev
 
     # reset the elapsed time due to replacement
     def reset_age(self) -> None:

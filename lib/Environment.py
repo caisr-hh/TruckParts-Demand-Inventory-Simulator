@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 from dataclasses import dataclass
-import random
+import numpy as np
 from typing import List, Dict, Tuple, Any, Optional, Iterable
 from truck import Truck
 
@@ -12,7 +12,6 @@ FAILURE_MODEL = [
     "gompertz"
 ]
 
-
 @dataclass
 class SimulationConfig:
     start_time: datetime    # simulation start time 
@@ -21,9 +20,10 @@ class SimulationConfig:
 
 
 class Simulator:
-    def __init__(self, config: SimulationConfig, n_trucks: int, 
+    def __init__(self, config: SimulationConfig, seed: int, n_trucks: int, 
                  n_parts: int):
         self.config = config
+        self.rng = np.random.default_rng(seed)
         common_parts = self.generate_common_parts(n_parts=n_parts, FAILURE_MODEL=FAILURE_MODEL)
         self.fleet: List[Truck] = self.generate_fleet(n_trucks=n_trucks, n_parts=n_parts, PART_DICT=common_parts)
         self.PART_INFO = common_parts
@@ -34,7 +34,8 @@ class Simulator:
         COMMON_PART = {}
         for i in range(n_parts):
             # numbering part type and attached failure model
-            COMMON_PART["type"+str(i)] = {"failure_model":random.choice(FAILURE_MODEL)} 
+            model = self.rng.choice(FAILURE_MODEL)
+            COMMON_PART["type"+str(i)] = {"failure_model":model} 
         return COMMON_PART
 
     # generate multiple trucks fleet
@@ -43,7 +44,9 @@ class Simulator:
         fleet: List[Truck] = []
         for i in range(n_trucks):
             truck_id = f"{id_prefix}{i:03d}"    # the truck indentifier
+            child_seed = int(self.rng.integers(0, 2**32 - 1))
             fleet.append(Truck(
+                seed=child_seed,
                 truck_id=truck_id,
                 model_id=model_id,
                 PART_DICT=PART_DICT,

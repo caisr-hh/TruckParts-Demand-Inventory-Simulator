@@ -1,12 +1,11 @@
 from typing import List, Dict, Tuple, Any, Optional, Iterable
 import part as part_mod
-import random
+import numpy as np
 
 # part class
 import importlib
 importlib.reload(part_mod)
 Part = part_mod.Part
-
 
 # dictionary of failure model fixed parameters
 MODEL_FIXEDPARAMS = {
@@ -27,8 +26,10 @@ def mk_part_id(truck_id: str, part_type: int) -> str:
 
 
 class Truck:
-    def __init__(self, truck_id: str, model_id: str,
+    def __init__(self, seed: int, truck_id: str, model_id: str,
                  PART_DICT: dict, part_setting: str = "RANDOM"):
+        self.rng = np.random.default_rng(seed) 
+
         # identifier of this truck
         self.truck_id: str = truck_id
         self.model_id: str = model_id
@@ -49,7 +50,8 @@ class Truck:
             model_kind = PART_DICT[part_type]["failure_model"]
             
             # attach part
-            self.parts.append(Part(part_id=part_id, 
+            part_seed = int(self.rng.integers(0, 2**32 - 1))
+            self.parts.append(Part(seed=part_seed, part_id=part_id, 
                                 part_type=part_type, 
                                 failure_model={"kind": model_kind, "params":MODEL_PARAMS[model_kind]}))
 
@@ -72,8 +74,8 @@ class Truck:
                                        truck_id=self.truck_id,
                                        model_id=self.model_id,
                                        truck_age=self.age)
-            if ev:
-                events.append(ev)
+            
+            events.append(ev)
         return events
     
 

@@ -11,7 +11,7 @@ class ProbabilityModel:
             return 1 - np.exp(-lambda0*time_range)
         
         elif self.model_name == "Weibull":
-            alpha = 1.5
+            alpha = 0.5
             lambda0 = 200
             return 1 - np.exp(-(time_range/lambda0)**alpha)
         

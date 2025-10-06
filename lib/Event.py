@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
-@dataclass (frozen=True)    # 
+# Demand data
+@dataclass (frozen=True)    
 class DemandEvent:
     time: int
     truck_id: str
@@ -9,3 +10,15 @@ class DemandEvent:
     part_id: str
     part_type: str
     part_age: int
+
+# Failure data at each iteration
+@dataclass (frozen=True)
+class FailureData:
+    time: int
+    truck_id: str
+    model_id: str
+    truck_age: int
+    part_id: str
+    part_type: str
+    part_age: int
+    failure: int
