@@ -44,6 +44,7 @@ class DataArrange:
     def failure_by_part_daily(self):
         # daily_part = self.event_data.groupby(["date", "part_type"]).size().unstack(fill_value=0).sort_index()
         date_part = self.event_data.groupby(["date", "part_type"])['failure'].sum().unstack(fill_value=0)
+        date_part = date_part.sort_index(axis=1,key=lambda s: s.str.extract(r'(\d+)').astype(int)[0])
         return date_part
     
     # demand data for each part (time)
@@ -64,7 +65,8 @@ class DataArrange:
     
     # Learning data
     def mk_learning_data_by_part(self):
-        MLdata_by_part = self.event_data[["date", "time", "part_type", "failure"]].sort_values(by=["part_type","time"]).reset_index(drop=True).copy()
+        MLdata_by_part = self.event_data[["date", "time", "part_type", "failure"]].sort_values(by=["part_type"]).reset_index(drop=True).copy()
+        MLdata_by_part = (MLdata_by_part.groupby(["date", "time", "part_type"], as_index=False).agg(failure=('failure','sum'))).sort_values(by=["part_type", "time"])
         MLdata_by_part.to_csv(os.path.join(self.data_dir, "MLlearning_by_part.csv"), index=False)
         
     
