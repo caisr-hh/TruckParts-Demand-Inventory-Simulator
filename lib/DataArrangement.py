@@ -2,7 +2,7 @@ from dataclasses import is_dataclass, asdict
 from datetime import datetime, timedelta
 import pandas as pd
 from pathlib import Path
-import os, sys
+import os, sys, re
 
 class DataArrange:
     def __init__(self, events, start_time: datetime | None = None):
@@ -56,6 +56,8 @@ class DataArrange:
     # failure data for each part of each truck (date)
     def failure_by_partid_daily(self):
         date_partid = self.event_data.groupby(["date", "part_id"])['failure'].sum().unstack(fill_value=0)
+        sorted_cols = sorted(date_partid.columns,key=lambda x: int(re.search(r"type(\d+)", x).group(1)) if re.search(r"type(\d+)", x) else float("inf"))
+        date_partid = date_partid[sorted_cols]
         return date_partid
     
     # failure data for each part of each truck (time)
