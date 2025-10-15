@@ -15,6 +15,7 @@ class DemandEvent:
 @dataclass (frozen=True)
 class FailureData:
     time: int
+    dealer_id: str
     truck_id: str
     model_id: str
     truck_age: int

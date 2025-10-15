@@ -26,9 +26,12 @@ def mk_part_id(truck_id: str, part_type: int) -> str:
 
 
 class Truck:
-    def __init__(self, seed: int, truck_id: str, model_id: str,
-                 PART_DICT: dict, part_setting: str = "RANDOM"):
+    def __init__(self, seed: int, dealer_id: str, truck_id: str, model_id: str,
+                 PARTS_DICT: dict, MEDIAN_TIME: dict, usage: str, part_setting: str = "RANDOM"):
         self.rng = np.random.default_rng(seed) 
+
+        # identifier of holder
+        self.dealer_id: str = dealer_id
 
         # identifier of this truck
         self.truck_id: str = truck_id
@@ -36,11 +39,42 @@ class Truck:
         
         # elapsed time after the last replacement of either parts
         self.age: int = 0
+
+        # usage of the truck
+        self.usage: str = usage
         
         # parts constituting this truck
         self.parts: List[Part] = []
-        if part_setting == "RANDOM":        # random setting 
-            self.attach_random_part(PART_DICT=PART_DICT, MODEL_PARAMS=MODEL_FIXEDPARAMS)
+        self.attach_part(PARTS_DICT=PARTS_DICT, MEDIAN_TIME=MEDIAN_TIME)
+
+        # if part_setting == "RANDOM":        # random setting
+        #     # fix the parameter value
+        #     if self.usage == "FIX":
+        #         self.attach_random_part(PART_DICT=PART_DICT, MODEL_PARAMS=MODEL_FIXEDPARAMS)
+    
+
+    # attach parts to the truck
+    def attach_part(self, PARTS_DICT: dict, MEDIAN_TIME: dict):
+        for part_type in PARTS_DICT.keys():
+            # part information
+            part_id = mk_part_id(self.truck_id, part_type)
+
+            # failure model
+            model_kind = PARTS_DICT[part_type]["failure_model"]
+            median_time = MEDIAN_TIME[part_type][self.usage]
+
+            # attach part
+            part_seed = int(self.rng.integers(0, 2**32 - 1))
+            self.parts.append(Part(seed=part_seed, 
+                                dealer_id=self.dealer_id,
+                                truck_id=self.truck_id,
+                                model_id=self.model_id,
+                                part_id=part_id, 
+                                part_type=part_type,
+                                usage=self.usage,
+                                failure_model=model_kind,
+                                median_time=median_time))
+
     
     # attach parts to the truck
     def attach_random_part(self, PART_DICT: dict, MODEL_PARAMS: dict):
@@ -51,7 +85,11 @@ class Truck:
             
             # attach part
             part_seed = int(self.rng.integers(0, 2**32 - 1))
-            self.parts.append(Part(seed=part_seed, part_id=part_id, 
+            self.parts.append(Part(seed=part_seed, 
+                                dealer_id=self.dealer_id,
+                                truck_id=self.truck_id,
+                                model_id=self.model_id,
+                                part_id=part_id, 
                                 part_type=part_type, 
                                 failure_model={"kind": model_kind, "params":MODEL_PARAMS[model_kind]}))
 
@@ -70,10 +108,7 @@ class Truck:
         events = []
         for part in self.parts:
             # print(time)
-            ev = part.evaluate_failure(time=time, delta_time=delta_time, 
-                                       truck_id=self.truck_id,
-                                       model_id=self.model_id,
-                                       truck_age=self.age)
+            ev = part.evaluate_failure(time=time, delta_time=delta_time, truck_age=self.age)
             
             events.append(ev)
         return events

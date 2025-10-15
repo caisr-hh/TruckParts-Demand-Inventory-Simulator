@@ -7,18 +7,18 @@ class ProbabilityModel:
     
     def CumulativeDensityFunction(self, time_range) -> np.array:
         if self.model_name == "Exponential":
-            lambda0 = 0.01
+            lambda0 = 0.005
             return 1 - np.exp(-lambda0*time_range)
         
         elif self.model_name == "Weibull":
-            alpha = 0.5
-            lambda0 = 200
-            return 1 - np.exp(-(time_range/lambda0)**alpha)
+            k = 0.5
+            lambda0 = 0.001
+            return 1 - np.exp(-(time_range*lambda0)**k)
         
         elif self.model_name == "Log-logistic":
-            alpha = 200.0
-            beta = 2.5
-            return 1 - 1.0 / (1.0 + (time_range / alpha) ** beta)
+            lambda0 = 0.05
+            k = 0.5
+            return 1 - 1.0 / (1.0 + (time_range * lambda0) ** k)
         
         elif self.model_name == "Gompertz":
             B = 0.001
@@ -27,18 +27,18 @@ class ProbabilityModel:
 
     def SurvivalFunc(self, time_range) -> np.array:
         if self.model_name == "Exponential":
-            lambda0 = 0.01
+            lambda0 = 0.005
             return np.exp(-lambda0*time_range)
 
         elif self.model_name == "Weibull":
-            alpha = 1.5
-            lambda0 = 200
-            return np.exp(-(time_range/lambda0)**alpha)
+            k = 0.5
+            lambda0 = 0.001
+            return np.exp(-(time_range*lambda0)**k)
 
         elif self.model_name == "Log-logistic":
-            alpha = 200.0
-            beta = 2.5
-            return 1.0 / (1.0 + (time_range / alpha) ** beta)
+            lambda0 = 0.05
+            k = 0.5
+            return 1.0 / (1.0 + (time_range * lambda0) ** k)
         
         elif self.model_name == "Gompertz":
             B = 0.001
@@ -47,19 +47,19 @@ class ProbabilityModel:
     
     def HazardFunc(self, time_range) -> np.array:
         if self.model_name == "Exponential":
-            lambda0 = 0.01
+            lambda0 = 0.005
             return np.array([lambda0 for i in time_range])
         
         elif self.model_name == "Weibull":
-            alpha = 1.5
-            lambda0 = 200
-            return (alpha / lambda0) * (time_range / lambda0) ** (alpha-1)
+            k = 0.5
+            lambda0 = 0.001
+            return (k * lambda0) * (time_range * lambda0) ** (k-1)
 
         elif self.model_name == "Log-logistic":
-            alpha = 200.0
-            beta = 2.5
-            numerator = (beta / alpha) * ( (time_range / alpha) ** (beta - 1) )
-            denominator = 1.0 + ( (time_range / alpha) ** beta )
+            lambda0 = 0.05
+            k = 0.5
+            numerator = (k * lambda0) * ( (time_range * lambda0) ** (k - 1) )
+            denominator = 1.0 + ( (time_range * lambda0) ** k)
             return numerator / denominator
         
         elif self.model_name == "Gompertz":
