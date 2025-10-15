@@ -27,7 +27,8 @@ def mk_part_id(truck_id: str, part_type: int) -> str:
 
 class Truck:
     def __init__(self, seed: int, dealer_id: str, truck_id: str, model_id: str,
-                 PARTS_DICT: dict, MEDIAN_TIME: dict, usage: str, part_setting: str = "RANDOM"):
+                 PARTS_DICT: dict, usage: str, MEDIAN_TIME: dict,
+                 K_PARAM: dict, part_setting: str = "RANDOM"):
         self.rng = np.random.default_rng(seed) 
 
         # identifier of holder
@@ -45,7 +46,7 @@ class Truck:
         
         # parts constituting this truck
         self.parts: List[Part] = []
-        self.attach_part(PARTS_DICT=PARTS_DICT, MEDIAN_TIME=MEDIAN_TIME)
+        self.attach_part(PARTS_DICT=PARTS_DICT, MEDIAN_TIME=MEDIAN_TIME, K_PARAM=K_PARAM)
 
         # if part_setting == "RANDOM":        # random setting
         #     # fix the parameter value
@@ -54,7 +55,7 @@ class Truck:
     
 
     # attach parts to the truck
-    def attach_part(self, PARTS_DICT: dict, MEDIAN_TIME: dict):
+    def attach_part(self, PARTS_DICT: dict, MEDIAN_TIME: dict, K_PARAM: dict):
         for part_type in PARTS_DICT.keys():
             # part information
             part_id = mk_part_id(self.truck_id, part_type)
@@ -62,6 +63,7 @@ class Truck:
             # failure model
             model_kind = PARTS_DICT[part_type]["failure_model"]
             median_time = MEDIAN_TIME[part_type][self.usage]
+            k_param = K_PARAM[part_type][self.usage]
 
             # attach part
             part_seed = int(self.rng.integers(0, 2**32 - 1))
@@ -73,7 +75,8 @@ class Truck:
                                 part_type=part_type,
                                 usage=self.usage,
                                 failure_model=model_kind,
-                                median_time=median_time))
+                                median_time=median_time,
+                                k_param=k_param))
 
     
     # attach parts to the truck

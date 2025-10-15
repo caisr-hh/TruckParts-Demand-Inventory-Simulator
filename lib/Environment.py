@@ -41,8 +41,7 @@ class Simulator:
             dealer_id = f"{id_prefix}{i:02d}"
             child_seed = int(self.rng.integers(0, 2**32 - 1))
             n_trucks = int(self.rng.integers(10, 30))
-            n_parts = 10
-            print(dealer_id)
+            n_parts = int(self.rng.integers(25, 30))
             dealer_list.append(Dealer(
                 seed=child_seed,
                 dealer_id=dealer_id,

@@ -21,7 +21,8 @@ Gompertz = fmodel_md.GompertzModel
 # One Part
 class Part:
     def __init__(self, seed: int, dealer_id:str, truck_id: str, model_id: str,
-                 part_id: str, part_type: str, usage: str, failure_model: str, median_time: int):
+                 part_id: str, part_type: str, usage: str, failure_model: str, 
+                 median_time: int, k_param: float):
         self.rng = np.random.default_rng(seed)
 
         # identifier of holder (dealer)
@@ -39,20 +40,20 @@ class Part:
         self.usage = usage
         
         # failure model
-        self.failure_model = self.make_failure_model(kind=failure_model, median_time=median_time)
+        self.failure_model = self.make_failure_model(kind=failure_model, median_time=median_time, k_param=k_param)
 
         # elapsed time after the latest replacement
         self.age = 0
     
-    def make_failure_model(self, kind: str, median_time: int):
+    def make_failure_model(self, kind: str, median_time: int, k_param: float):
         if kind == "exponential":
             base = Exponential(median = median_time)
         elif kind == "weibull":
-            base = Weibull(usage=self.usage, median=median_time)
+            base = Weibull(usage=self.usage, median=median_time, k0=k_param)
         elif kind == "log-logistic":
-            base = LogLogistic(usage=self.usage, median=median_time)
+            base = LogLogistic(usage=self.usage, median=median_time, k0=k_param)
         elif kind == "gompertz":
-            base = Gompertz(usage=self.usage, median=median_time)
+            base = Gompertz(usage=self.usage, median=median_time, k0=k_param)
         return base
 
 
@@ -63,7 +64,8 @@ class Part:
     # evaluate failure model
     def evaluate_failure(self, time: int, delta_time: int, truck_age: int):
         # failure_prob = self.failure_model.hazard_func(time = time)
-        failure_prob = self.failure_model.step_prob_func(time = time, delta_time = delta_time)
+        # failure_prob = self.failure_model.step_prob_func(time = time, delta_time = delta_time)
+        failure_prob = self.failure_model.step_prob_func(time = self.age, delta_time = delta_time)
         # failure occurs:
         if self.rng.random() < failure_prob:
             ev = FailureData(

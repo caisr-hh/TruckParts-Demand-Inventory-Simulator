@@ -40,17 +40,18 @@ class ExponentialModel(FailureModel):
 
 # Weibull Model
 class WeibullModel(FailureModel):
-    def __init__(self, usage: str, median: int):
+    def __init__(self, usage: str, median: int, k0: float):
         self.median = median
         self.usage = usage
+        self.k0 = k0
         self.calc_params_val()
     
     # caluculate parameter value inversely from the median
     def calc_params_val(self):
-        if self.usage == "FLAT":
-            self.k0 = 2.0
-        else:
-            self.k0 = 0.6
+        # if self.usage == "FLAT":
+        #     self.k0 = 2.0
+        # else:
+        #     self.k0 = 0.6
         
         self.lambda0 = (np.log(2)**(1/self.k0))/self.median
 
@@ -64,14 +65,15 @@ class WeibullModel(FailureModel):
 
 # Log-logistic Model
 class LogLogisticModel(FailureModel):
-    def __init__(self, usage: str, median: int):
+    def __init__(self, usage: str, median: int, k0: float):
         self.median = median
         self.usage = usage
+        self.k0 = k0
         self.calc_params_val()
     
     # caluculate parameter value inversely from the median
     def calc_params_val(self):
-        self.k0 = 2.5
+        # self.k0 = 2.5
         self.lambda0 = 1/(self.median**self.k0)
     
     # hazard function
@@ -88,17 +90,18 @@ class LogLogisticModel(FailureModel):
 
 # Gompertz Model
 class GompertzModel(FailureModel):
-    def __init__(self, usage: str, median: int):
+    def __init__(self, usage: str, median: int, k0: float):
         self.median = median
         self.usage = usage
+        self.k0 = k0
         self.calc_params_val()
     
     # caluculate parameter value inversely from the median
     def calc_params_val(self):
-        if self.usage == "FLAT":
-            self.k0 = 0.2
-        else:
-            self.k0 = 0.4
+        # if self.usage == "FLAT":
+        #     self.k0 = 0.2
+        # else:
+        #     self.k0 = 0.4
         self.lambda0 = (1/self.median) * np.log(1 + np.log(2)/self.k0)
     
     # hazard function

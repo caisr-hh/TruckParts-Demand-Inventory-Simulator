@@ -21,8 +21,8 @@ class Dealer:
         self.dealer_id = dealer_id
         self.PARTS_DICT = self.generate_parts_list(n_parts=n_parts, 
                                                    FAILURE_MODEL=FAILURE_MODEL)
-        self.MEDIAN_TIME = self.determine_median_time(n_parts=n_parts)
-        print(self.MEDIAN_TIME)
+        self.MEDIAN_TIME = self.determine_median_time()
+        self.K_PARAM = self.determine_k_parameter()
         self.fleet: List[Truck] = self.generate_fleet(n_trucks=n_trucks, n_parts=n_parts,
                                                       model_id=dealer_id)
 
@@ -51,13 +51,14 @@ class Dealer:
                 model_id=model_id,
                 PARTS_DICT=self.PARTS_DICT,
                 usage=usage,
-                MEDIAN_TIME=self.MEDIAN_TIME, 
+                MEDIAN_TIME=self.MEDIAN_TIME,
+                K_PARAM=self.K_PARAM,
                 part_setting="RANDOM"
             ))
         return fleet
     
     # determine median of event occurence time, which is the time at which the failure peobability becomes 50%.
-    def determine_median_time(self, n_parts: int):
+    def determine_median_time(self):
         MEDIAN_TIME={}
         for part_type in self.PARTS_DICT.keys():
             flat_median = self.rng.integers(100, 365)
@@ -65,6 +66,65 @@ class Dealer:
             MEDIAN_TIME[part_type] = {"FLAT":flat_median, "HARD":hard_median}
         return MEDIAN_TIME
 
+    # determine k parameter for each part
+    def determine_k_parameter(self):
+        K_PARAM={}
+        for part_type in self.PARTS_DICT.keys():
+            model_kind = self.PARTS_DICT[part_type]["failure_model"]
+            # Exponential model
+            if model_kind == "exponential":
+                K_PARAM[part_type] = {"FLAT":0, "HARD":0}
+            # Weibull model
+            elif model_kind == "weibull":
+                # FLAT
+                kr_flat = 2.0
+                v = self.rng.normal(np.log(kr_flat), 0.1)
+                k_flat = np.exp(v)
+                while k_flat <= 1:
+                    v = self.rng.normal(np.log(kr_flat), 0.1)
+                    k_flat = np.exp(v)
+
+                # HARD
+                kr_hard = 0.8
+                v = self.rng.normal(np.log(kr_hard), 0.05)
+                k_hard = np.exp(v)
+                while k_hard <= 0 or k_hard > 1:
+                    v = self.rng.normal(np.log(kr_hard), 0.05)
+                    k_hard = np.exp(v)
+                
+                K_PARAM[part_type] = {"FLAT":k_flat, "HARD":k_hard}
+
+            # Log-logistic model
+            elif model_kind == "log-logistic":
+                # FLAT
+                kr_flat = 2.5
+                v = self.rng.normal(np.log(kr_flat), 0.1)
+                k_flat = np.exp(v)
+                while k_flat <= 1:
+                    v = self.rng.normal(np.log(kr_flat), 0.1)
+                    k_flat = np.exp(v)
+                
+                # HARD
+                k_hard = k_flat * 1.5
+
+                K_PARAM[part_type] = {"FLAT":k_flat, "HARD":k_hard}
+
+            # Gompertz model
+            elif model_kind == "gompertz":
+                # FLAT
+                kr_flat = 0.4
+                v = self.rng.normal(np.log(kr_flat), 0.1)
+                k_flat = np.exp(v)
+                while k_flat <= 0:
+                    v = self.rng.normal(np.log(kr_flat), 0.1)
+                    k_flat = np.exp(v)
+                
+                # HARD
+                k_hard = k_flat * 1.5
+
+                K_PARAM[part_type] = {"FLAT":k_flat, "HARD":k_hard}
+
+        return K_PARAM
     
     # determine truck usage randomly
     def determine_usage(self):
