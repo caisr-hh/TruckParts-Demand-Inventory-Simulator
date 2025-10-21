@@ -2,6 +2,9 @@ from abc import ABC, abstractmethod
 from typing import Optional, Dict, Any
 import numpy as np
 
+# global variable
+fluctuate = False    # indicate whether the paramter values fluctuate for each part
+
 # abstract class
 class FailureModel(ABC):
     # caluculate parameter value inversely from the median
@@ -22,7 +25,8 @@ class FailureModel(ABC):
 
 # Exponential model
 class ExponentialModel(FailureModel):
-    def __init__(self, median: int):
+    def __init__(self, median: int, seed: int):
+        self.rng = np.random.default_rng(seed)
         self.median = median
         self.calc_params_val()
     
@@ -40,7 +44,8 @@ class ExponentialModel(FailureModel):
 
 # Weibull Model
 class WeibullModel(FailureModel):
-    def __init__(self, usage: str, median: int, k0: float):
+    def __init__(self, usage: str, median: int, k0: float, seed: int):
+        self.rng = np.random.default_rng(seed)
         self.median = median
         self.usage = usage
         self.k0 = k0
@@ -48,11 +53,25 @@ class WeibullModel(FailureModel):
     
     # caluculate parameter value inversely from the median
     def calc_params_val(self):
-        # if self.usage == "FLAT":
-        #     self.k0 = 2.0
-        # else:
-        #     self.k0 = 0.6
-        
+        # fluctuate for each part
+        if fluctuate:
+            sig = 0.01
+            if self.usage == "FLAT":
+                v = self.rng.normal(np.log(self.k0), sig)
+                k0_ = np.exp(v)
+                while k0_ < 1:
+                    v = self.rng.normal(np.log(self.k0), sig)
+                    k0_ = np.exp(v)
+                self.k0 = k0_
+            
+            elif self.usage == "HARD":
+                v = self.rng.normal(np.log(self.k0), sig)
+                k0_ = np.exp(v)
+                while k0_<=0 or k0_>1:
+                    v = self.rng.normal(np.log(self.k0), sig)
+                    k0_ = np.exp(v)
+                self.k0 = k0_
+
         self.lambda0 = (np.log(2)**(1/self.k0))/self.median
 
     # hazard function
@@ -65,7 +84,8 @@ class WeibullModel(FailureModel):
 
 # Log-logistic Model
 class LogLogisticModel(FailureModel):
-    def __init__(self, usage: str, median: int, k0: float):
+    def __init__(self, usage: str, median: int, k0: float, seed: int):
+        self.rng = np.random.default_rng(seed)
         self.median = median
         self.usage = usage
         self.k0 = k0
@@ -73,7 +93,15 @@ class LogLogisticModel(FailureModel):
     
     # caluculate parameter value inversely from the median
     def calc_params_val(self):
-        # self.k0 = 2.5
+        # fluctuate for each part
+        if fluctuate:
+            sig = 0.1
+            v = self.rng.normal(np.log(self.k0), sig)
+            k0_ = np.exp(v)
+            while k0_ <= 1:
+                v = self.rng.normal(np.log(self.k0), sig)
+                k0_ = np.exp(v)
+            self.k0 = k0_  
         self.lambda0 = 1/(self.median**self.k0)
     
     # hazard function
@@ -90,7 +118,8 @@ class LogLogisticModel(FailureModel):
 
 # Gompertz Model
 class GompertzModel(FailureModel):
-    def __init__(self, usage: str, median: int, k0: float):
+    def __init__(self, usage: str, median: int, k0: float, seed: int):
+        self.rng = np.random.default_rng(seed)
         self.median = median
         self.usage = usage
         self.k0 = k0
@@ -98,10 +127,15 @@ class GompertzModel(FailureModel):
     
     # caluculate parameter value inversely from the median
     def calc_params_val(self):
-        # if self.usage == "FLAT":
-        #     self.k0 = 0.2
-        # else:
-        #     self.k0 = 0.4
+        # fluctuate for each part
+        if fluctuate:
+            sig = 0.1
+            v = self.rng.normal(np.log(self.k0), sig)
+            k0_ = np.exp(v)
+            while k0_ <= 0:
+                v = self.rng.normal(np.log(self.k0), sig)
+                k0_ = np.exp(v)
+            self.k0 = k0_  
         self.lambda0 = (1/self.median) * np.log(1 + np.log(2)/self.k0)
     
     # hazard function

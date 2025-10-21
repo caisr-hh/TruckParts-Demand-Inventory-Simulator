@@ -9,10 +9,8 @@ Truck = truck_mod.Truck
 
 # list of available failure model
 FAILURE_MODEL = [
-    "exponential",
     "weibull",
-    "log-logistic",
-    "gompertz"
+    "log-logistic"
 ]
 
 class Dealer:
@@ -22,7 +20,7 @@ class Dealer:
         self.PARTS_DICT = self.generate_parts_list(n_parts=n_parts, 
                                                    FAILURE_MODEL=FAILURE_MODEL)
         self.MEDIAN_TIME = self.determine_median_time()
-        self.K_PARAM = self.determine_k_parameter()
+        self.K_PARAM = self.uniform_determine_k_parameter()
         self.fleet: List[Truck] = self.generate_fleet(n_trucks=n_trucks, n_parts=n_parts,
                                                       model_id=dealer_id)
 
@@ -66,8 +64,46 @@ class Dealer:
             MEDIAN_TIME[part_type] = {"FLAT":flat_median, "HARD":hard_median}
         return MEDIAN_TIME
 
-    # determine k parameter for each part
-    def determine_k_parameter(self):
+    # uniformly determine k parameter for each part (uniform(kl,ku))
+    def uniform_determine_k_parameter(self):
+        K_PARAM={}
+        for part_type in self.PARTS_DICT.keys():
+            model_kind = self.PARTS_DICT[part_type]["failure_model"]
+            # Exponential model
+            if model_kind == "exponential":
+                K_PARAM[part_type] = {"FLAT":0, "HARD":0}
+            # Weibull model
+            elif model_kind == "weibull":
+                # FLAT
+                k_flat = self.rng.random()*(3.0-1.0) + 1.0
+                # HARD
+                k_hard = self.rng.random()*(0.8-0.4) + 0.4
+                
+                K_PARAM[part_type] = {"FLAT":k_flat, "HARD":k_hard}
+
+            # Log-logistic model
+            elif model_kind == "log-logistic":
+                # FLAT
+                k_flat = self.rng.random()*(3.0-1.0) + 1.0
+                # HARD
+                k_hard = k_flat * self.rng.random()*(2.0-1.2) + 1.2
+
+                K_PARAM[part_type] = {"FLAT":k_flat, "HARD":k_hard}
+
+            # Gompertz model
+            elif model_kind == "gompertz":
+                # FLAT
+                k_flat = self.rng.random()*(0.03-0.005) + 0.005
+                # HARD
+                k_hard = self.rng.random()*(0.1-0.03) + 0.03
+
+                K_PARAM[part_type] = {"FLAT":k_flat, "HARD":k_hard}
+
+        return K_PARAM
+
+
+    # determine k parameter for each part (norm(const., 0.1))
+    def constant_determine_k_parameter(self):
         K_PARAM={}
         for part_type in self.PARTS_DICT.keys():
             model_kind = self.PARTS_DICT[part_type]["failure_model"]

@@ -11,14 +11,6 @@ Dealer = dealer_mod.Dealer
 
 # from truck import Truck
 
-# list of available failure model
-FAILURE_MODEL = [
-    "exponential",
-    "weibull",
-    "log-logistic",
-    "gompertz"
-]
-
 @dataclass
 class SimulationConfig:
     start_time: datetime    # simulation start time 
