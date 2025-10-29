@@ -22,7 +22,7 @@ Gompertz = fmodel_md.GompertzModel
 class Part:
     def __init__(self, seed: int, dealer_id:str, truck_id: str, model_id: str,
                  part_id: str, part_type: str, usage: str, failure_model: str, 
-                 median_time: int, k_param: float):
+                 median_time: int, k_param: float, season_rbf):
         self.rng = np.random.default_rng(seed)
 
         # identifier of holder (dealer)
@@ -40,21 +40,26 @@ class Part:
         self.usage = usage
         
         # failure model
-        self.failure_model = self.make_failure_model(kind=failure_model, median_time=median_time, k_param=k_param)
+        self.failure_model = self.make_failure_model(kind=failure_model, median_time=median_time, k_param=k_param, 
+                                                     season_rbf=season_rbf)
 
         # elapsed time after the latest replacement
-        self.age = 0
+        self.age = 1
     
-    def make_failure_model(self, kind: str, median_time: int, k_param: float):
+    def make_failure_model(self, kind: str, median_time: int, k_param: float, season_rbf: dict):
         child_seed = int(self.rng.integers(0, 2**32 - 1))
         if kind == "exponential":
-            base = Exponential(median=median_time, seed=child_seed)
+            base = Exponential(median=median_time, seed=child_seed, 
+                               season_rbf=season_rbf)
         elif kind == "weibull":
-            base = Weibull(usage=self.usage, median=median_time, k0=k_param, seed=child_seed)
+            base = Weibull(usage=self.usage, median=median_time, k0=k_param, seed=child_seed, 
+                           season_rbf=season_rbf)
         elif kind == "log-logistic":
-            base = LogLogistic(usage=self.usage, median=median_time, k0=k_param, seed=child_seed)
+            base = LogLogistic(usage=self.usage, median=median_time, k0=k_param, seed=child_seed, 
+                               season_rbf=season_rbf)
         elif kind == "gompertz":
-            base = Gompertz(usage=self.usage, median=median_time, k0=k_param, seed=child_seed)
+            base = Gompertz(usage=self.usage, median=median_time, k0=k_param, seed=child_seed, 
+                            season_rbf=season_rbf)
         return base
 
 
@@ -63,10 +68,10 @@ class Part:
         pass
 
     # evaluate failure model
-    def evaluate_failure(self, time: int, delta_time: int, truck_age: int):
-        # failure_prob = self.failure_model.hazard_func(time = time)
+    def evaluate_failure(self, time: int, delta_time: int, truck_age: int, yearofday:int, days_in_year:int):
+        # failure_prob = self.failure_model.hazard_func(time = self.age, yearofday=yearofday, days_in_year=days_in_year)
         # failure_prob = self.failure_model.step_prob_func(time = time, delta_time = delta_time)
-        failure_prob = self.failure_model.step_prob_func(time = self.age, delta_time = delta_time)
+        failure_prob = self.failure_model.step_prob_func(time = self.age, delta_time = delta_time, yearofday=yearofday, days_in_year=days_in_year)
         # failure occurs:
         if self.rng.random() < failure_prob:
             ev = FailureData(

@@ -39,7 +39,7 @@ class Truck:
         self.model_id: str = model_id
         
         # elapsed time after the last replacement of either parts
-        self.age: int = 0
+        self.age: int = 1
 
         # usage of the truck
         self.usage: str = usage
@@ -62,6 +62,7 @@ class Truck:
 
             # failure model
             model_kind = PARTS_DICT[part_type]["failure_model"]
+            season_rbf = PARTS_DICT[part_type]["season_rbf"]
             median_time = MEDIAN_TIME[part_type][self.usage]
             k_param = K_PARAM[part_type][self.usage]
 
@@ -76,7 +77,8 @@ class Truck:
                                 usage=self.usage,
                                 failure_model=model_kind,
                                 median_time=median_time,
-                                k_param=k_param))
+                                k_param=k_param,
+                                season_rbf=season_rbf))
 
     
     # attach parts to the truck
@@ -107,11 +109,11 @@ class Truck:
             part.age += delta_time
 
     # daily checkup on each part 
-    def checkup_parts(self, time: int, delta_time: int):
+    def checkup_parts(self, time: int, delta_time: int, yearofday: int, days_in_year: int):
         events = []
         for part in self.parts:
             # print(time)
-            ev = part.evaluate_failure(time=time, delta_time=delta_time, truck_age=self.age)
+            ev = part.evaluate_failure(time=time, delta_time=delta_time, truck_age=self.age, yearofday=yearofday, days_in_year=days_in_year)
             
             events.append(ev)
         return events
