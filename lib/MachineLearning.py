@@ -76,7 +76,7 @@ class StatisticAnalysis:
                 new_labels = []
                 for lbl in labels:
                     if lbl in self.sim_failure[dealer]:
-                        new_labels.append(f"{lbl} ({self.sim_failure[dealer][lbl]['failure_model']}, {self.sim_failure[dealer][lbl]['season_type']} , {self.sim_failure[dealer][lbl]['location']})")
+                        new_labels.append(f"{lbl} ({self.sim_failure[dealer][lbl]['failure_model']}, {self.sim_failure[dealer][lbl]['season_type']} , {self.sim_failure[dealer][lbl]['location']} , {self.sim_failure[dealer][lbl]['flat_medtime']})")
                     else:
                         new_labels.append(lbl)
                 ax.legend(handles=handles, labels=new_labels,

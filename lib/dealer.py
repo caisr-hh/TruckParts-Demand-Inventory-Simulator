@@ -26,8 +26,8 @@ LOCATION = [
 
 # dictionary of RBF information
 RBF = {
-    "southern": {"summer":{"A":10,"c":"2025/8/1","w":25}, "winter":{"A":5,"c":"2025/1/15","w":15}},
-    "northern": {"summer":{"A":5,"c":"2025/8/1","w":15}, "winter":{"A":10,"c":"2025/1/15","w":25}}
+    "southern": {"summer":{"A":10,"c":"2025/8/1","w":50}, "winter":{"A":5,"c":"2025/1/15","w":30}},
+    "northern": {"summer":{"A":5,"c":"2025/8/1","w":30}, "winter":{"A":10,"c":"2025/1/15","w":50}}
 }
 
 class Dealer:
@@ -56,7 +56,7 @@ class Dealer:
             # attach part type id, failure model and seasonal coefficient
             model = self.rng.choice(FAILURE_MODEL)
 
-            rbf_param, season_type = self.determine_seasonality_hazard_model(strategy=self.seasonality)
+            rbf_param, season_type = self.determine_seasonality_hazard_model(strategy=self.seasonality, i_part=i)
 
             PARTS_DICT["type"+str(i)] = {"failure_model":model, "season_rbf":rbf_param
                                          , "season_type": season_type, "location": self.location} 
@@ -90,44 +90,28 @@ class Dealer:
     
     
     # determine seasonalilty characteristic for hazard model
-    def determine_seasonality_hazard_model(self, strategy: str):
-        # # no-seasonality
-        # if strategy == "None":
-        #     Ws = [{1: 1.0, 2: 1.0, 3: 1.0, 4: 1.0, 5: 1.0, 6: 1.0,
-        #         7: 1.0, 8: 1.0, 9: 1.0, 10: 1.0, 11: 1.0, 12:1.0},
-        #         "no-season"]
-        
-        # # randomly chosen constant coefficient
-        # elif strategy == "random_constant":
-        #     high = 5.0
-        #     transition = high/2
-        #     normal = 1.0
-        #     # winter - summer
-        #     Wboth = {1: high, 2: high, 3: transition, 4: normal, 5: normal, 6: transition, 
-        #          7: high, 8: high, 9: transition, 10: normal, 11: transition, 12: high}
-        #     # winter
-        #     Wwinter = {1: high, 2: high, 3: transition, 4: normal, 5: normal, 6: normal, 
-        #          7: normal, 8: normal, 9: normal, 10: normal, 11: transition, 12: high}
-        #     # summer
-        #     Wsummer = {1: normal, 2: normal, 3: normal, 4: normal, 5: normal, 6: transition, 
-        #          7: high, 8: high, 9: transition, 10: normal, 11: normal, 12: normal}
-        #     Ws = self.rng.choice([[Wboth,"both"], [Wwinter,"winter"], [Wsummer,"summer"]])
-
-        # # RBF based
-        # elif strategy == "RBF":
+    def determine_seasonality_hazard_model(self, strategy: str, i_part: int):
         # season type
-        season_type = self.rng.choice(["no-season", "both", "winter", "summer"])
+        if strategy == "RBF":                   # random distribution
+            # season type
+            season_type = self.rng.choice(["no-season", "both", "winter", "summer"])
+        
+        elif strategy == "comprehensiveRBF":    # distribution seasonality equally
+            # season type
+            season_list = ["no-season", "both", "winter", "summer"]
+            key = i_part%4
+            season_type = season_list[key]
 
-        # no-season
-        if season_type == "no-season":
+        # RBF parameters setting
+        if season_type == "no-season":      # no-season
             A = [0, 0]
             c = [datetime.strptime(RBF[self.location]["summer"]["c"],"%Y/%m/%d").timetuple().tm_yday, 
                     datetime.strptime(RBF[self.location]["winter"]["c"],"%Y/%m/%d").timetuple().tm_yday]
-            w = [RBF[self.location]["summer"]["w"], 
+            w = [RBF[self.location]["summer"]["w"],
                     RBF[self.location]["winter"]["w"]]
             s = len(A)
-        # both season
-        elif season_type == "both":
+
+        elif season_type == "both":         # both season
             A = [RBF[self.location]["summer"]["A"], 
                     RBF[self.location]["winter"]["A"]]
             c = [datetime.strptime(RBF[self.location]["summer"]["c"],"%Y/%m/%d").timetuple().tm_yday, 
@@ -135,23 +119,23 @@ class Dealer:
             w = [RBF[self.location]["summer"]["w"], 
                     RBF[self.location]["winter"]["w"]]
             s = len(A)
-        # summer season
-        elif season_type == "summer":
+        
+        elif season_type == "summer":       # summer season
             A = [RBF[self.location]["summer"]["A"], 0]
             c = [datetime.strptime(RBF[self.location]["summer"]["c"],"%Y/%m/%d").timetuple().tm_yday, 
                     datetime.strptime(RBF[self.location]["winter"]["c"],"%Y/%m/%d").timetuple().tm_yday]
             w = [RBF[self.location]["summer"]["w"], 
                     RBF[self.location]["winter"]["w"]]
             s = len(A)
-        # winter season
-        elif season_type == "winter":
+        
+        elif season_type == "winter":       # winter season
             A = [0, RBF[self.location]["winter"]["A"]]
             c = [datetime.strptime(RBF[self.location]["summer"]["c"],"%Y/%m/%d").timetuple().tm_yday, 
                     datetime.strptime(RBF[self.location]["winter"]["c"],"%Y/%m/%d").timetuple().tm_yday]
             w = [RBF[self.location]["summer"]["w"], 
                     RBF[self.location]["winter"]["w"]]
             s = len(A)
-        
+
         rbf_param = RBFPRAM(s, A, c, w)
 
         return rbf_param, season_type
@@ -170,9 +154,11 @@ class Dealer:
     def determine_median_time(self):
         MEDIAN_TIME={}
         for part_type in self.PARTS_DICT.keys():
-            flat_median = self.rng.integers(100, 365)
+            flat_median = self.rng.integers(100, 150)
             hard_median = int(flat_median/2)
             MEDIAN_TIME[part_type] = {"FLAT":flat_median, "HARD":hard_median}
+            self.PARTS_DICT[part_type]["flat_medtime"] = flat_median
+            self.PARTS_DICT[part_type]["hard_medtime"] = hard_median
         return MEDIAN_TIME
 
     # uniformly determine k parameter for each part (uniform(kl,ku))
@@ -186,9 +172,9 @@ class Dealer:
             # Weibull model
             elif model_kind == "weibull":
                 # FLAT
-                k_flat = self.rng.random()*(3.0-1.0) + 1.0
+                k_flat = self.rng.random()*(2.0-1.5) + 1.5
                 # HARD
-                k_hard = self.rng.random()*(0.8-0.4) + 0.4
+                k_hard = self.rng.random()*(0.7-0.4) + 0.4
                 
                 K_PARAM[part_type] = {"FLAT":k_flat, "HARD":k_hard}
 

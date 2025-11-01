@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 import numpy as np
 from typing import List, Dict, Tuple, Any, Optional, Iterable
 import dealer as dealer_mod
@@ -13,14 +13,20 @@ Dealer = dealer_mod.Dealer
 
 @dataclass
 class SimulationConfig:
-    start_time: datetime    # simulation start time 
-    total_time: int         # total simulation time
+    start_time: datetime    # simulation start time
+    end_time: datetime
     delta_time: int         # time increment step in each iteration
+    total_time: int = field(init=False)       # total simulation time
+
+    def __post_init__(self):
+        diff = self.end_time - self.start_time   
+        days = diff.days                   
+        self.total_time = days // self.delta_time
 
 
 class Simulator:
-    def __init__(self, config: SimulationConfig, seed: int, n_dealers: int
-                 , season_engine, season_strategy: str):
+    def __init__(self, config: SimulationConfig, seed: int, 
+                 n_dealers: int, season_engine, season_strategy: str):
         self.config = config
         self.rng = np.random.default_rng(seed)
         self.dealer_failure_model: dict = {}    # for recoding
@@ -39,8 +45,10 @@ class Simulator:
                 loc = "northern"
             dealer_id = f"{id_prefix}{i:02d}"
             child_seed = int(self.rng.integers(0, 2**32 - 1))
-            n_trucks = int(self.rng.integers(10, 30))
-            n_parts = int(self.rng.integers(25, 30))
+            # n_trucks = int(self.rng.integers(10, 30))
+            # n_parts = int(self.rng.integers(25, 30))
+            n_trucks = 30
+            n_parts = 4
             dealer_list.append(Dealer(
                 seed=child_seed,
                 dealer_id=dealer_id,
