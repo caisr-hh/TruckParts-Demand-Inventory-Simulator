@@ -7,10 +7,11 @@ import os
 from datetime import datetime, timedelta
 
 from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score, accuracy_score
-from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
+from sklearn.svm import SVR
 from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import StandardScaler
 
-class RandomForest:
+class SupportVector:
     def __init__(self, fname: str):
         # folder path
         current_file = Path(__file__)       # current filepath
@@ -88,6 +89,19 @@ class RandomForest:
             # sum
             df_group["sum"] = df_group['failure'].shift(1).rolling(window=w, min_periods=1).sum().fillna(0)
             
+            # the ratio of change in demands #
+            # difference between t-(w+1) and t-1 day
+            df_group["diff"] = df_group['failure'].shift(1) - df_group['failure'].shift(w+1)
+            df_group["diff"].replace([np.inf, -np.inf], 0)
+            df_group["diff"].fillna(0)
+            # ratio
+            df_group["diff_ratio"] = (df_group['failure'].shift(1) - df_group['failure'].shift(w+1)) / (df_group['failure'].shift(w+1) + 1e-6)
+            df_group["diff_ratio"].replace([np.inf, -np.inf], 0)
+            df_group["diff_ratio"].fillna(0)
+            # average difference
+            df_group["diff_1d"]=df_group['failure'].diff(1).fillna(0)
+            df_group["diff_mean"]=df_group["diff_1d"].shift(1).rolling(window=w, min_periods=1).mean().fillna(0)
+
             # the consecutive days without failure before the current day #
             last_fail_date = (df_group.index[0] - timedelta(days=1))
             days_since_list = []
@@ -147,139 +161,33 @@ class RandomForest:
         y_train = train[TARGET]
         X_test = test[FEATURES]
         y_test = test[TARGET]
+
+        # scaling
+        scaler_X = StandardScaler()
+        X_train_scaled = scaler_X.fit_transform(X_train)
+        X_test_scaled  = scaler_X.transform(X_test)
         
         # training
-        rf = RandomForestRegressor(n_estimators=10000)
-        rf.fit(X_train, y_train)
+        svr = SVR(kernel='rbf', C=1.0, epsilon=0.1, gamma='auto')
+        svr.fit(X_train_scaled, y_train)
         
         # test forecasting
-        test['prediction'] = rf.predict(X_test)
+        test['prediction'] = svr.predict(X_test_scaled)
 
         #-- result --#
         # result1: feature importance
-        self.feature_importance(rf)
+        # self.feature_importance(svr)
 
-        # result2: forecasting curve (entire period)
+        # result2-1: forecasting curve (entire period)
         # self.draw_demand_curve_entire_period(test, df_model, TARGET)
+
+        # result2-2: forecasting curve (prediction period)
+        self.draw_demand_curve_prediction_period(test, TARGET)
 
         # result3: evaluate regression accuracy
         df_reg_metrics = self.evaluate_regression_accuracy(test)
 
 
-    # unified model: classification model based on comprehensive data
-    def classification_comprehensive(self, start_date, train_period, 
-                                 FEATURES, TARGET, w=1, n_lag=0):
-        # dataframe to build model
-        df_model = self.df.copy()
-
-        #-- categorical variables --#
-        # self.df["part_id"] = (self.df['dealer_id'] + "_" + self.df['part_type']).astype("category")
-        le_dealer = LabelEncoder()
-        le_part   = LabelEncoder()
-        df_model['dealer_id_num']   = le_dealer.fit_transform(df_model['dealer_id'])
-        df_model['part_type_num']   = le_part.fit_transform(df_model['part_type'])
-
-
-        #-- feature data creation --#
-        # failure flag
-        df_model['failure_flag'] = (df_model['failure'] > 0).astype(int)
-
-        # time-based data
-        df_model = self.create_time_based_feature(df_model)
-
-        # statistical data
-        def calc_statistical_feature(df_group):
-            df_group = df_group.copy()
-            # the number of demands in the past w days #
-            # mean
-            df_group["mean"] = df_group['failure'].shift(1).rolling(window=w, min_periods=1).mean().fillna(0)
-            # std
-            df_group["std"] = df_group['failure'].shift(1).rolling(window=w, min_periods=1).std().fillna(0)
-            # median
-            df_group["median"] = df_group['failure'].shift(1).rolling(window=w, min_periods=1).median().fillna(0)
-            # min
-            df_group["min"] = df_group['failure'].shift(1).rolling(window=w, min_periods=1).min().fillna(0)
-            # max
-            df_group["max"] = df_group['failure'].shift(1).rolling(window=w, min_periods=1).max().fillna(0)
-            # sum
-            df_group["sum"] = df_group['failure'].shift(1).rolling(window=w, min_periods=1).sum().fillna(0)
-            
-            # zero cumulative: the consecutive days without failure before the current day #
-            last_fail_date = (df_group.index[0] - timedelta(days=1))
-            days_since_list = []
-            for idx, row in df_group.iterrows():
-                current_date = idx      # the current day
-                days_since_last_failure = int((current_date - last_fail_date).days) - 1
-                days_since_list.append(days_since_last_failure)
-
-                if row["failure"] > 0:    
-                    last_fail_date = current_date
-            df_group["zero_cumulative"] = days_since_list
-            df_group["zero_cumulative"] = df_group["zero_cumulative"].fillna(0)
-
-            # mean_last_failure_w
-            df_group["mean_zero_cumulative"] = df_group["zero_cumulative"].shift(1).rolling(window=w, min_periods=1).mean().fillna(0)
-
-            # max_last_failure_w
-            df_group["max_zero_cumulative"] = df_group["zero_cumulative"].shift(1).rolling(window=w, min_periods=1).max().fillna(0)
-
-            # min_last_failure_w
-            df_group["min_zero_cumulative"] = df_group["zero_cumulative"].shift(1).rolling(window=w, min_periods=1).min().fillna(0)
-
-            # median_last_failure_w
-            df_group["med_zero_cumulative"] = df_group["zero_cumulative"].shift(1).rolling(window=w, min_periods=1).median().fillna(0)
-            
-            # demand days #
-            df_group["zero"] = (df_group['failure'] == 0).astype(int)
-            df_group["no_zero"] = (df_group['failure'] > 0).astype(int)
-            df_group["demand_days"] = df_group['zero'].shift(1).rolling(window=w, min_periods=1).sum().fillna(0)
-            df_group["no_demand_days"] = df_group['no_zero'].shift(1).rolling(window=w, min_periods=1).sum().fillna(0)
-
-            return df_group
-        df_model = df_model.groupby(['dealer_id', 'part_type'], group_keys=False).apply(calc_statistical_feature)
-        # print(df_model[["days_since_last_failure", "group_zero_failure"]])
-        # print(df_model["zero_failure"])
-
-        # lag features
-        def add_lag_features(df_group):
-            df_group=df_group.copy()
-
-            if n_lag>0:
-                for lag in range(1, n_lag+1):
-                    df_group[f'lag_{lag}'] = df_group['failure'].shift(lag).fillna(0)
-            return df_group
-        df_model = df_model.groupby(['dealer_id', 'part_type'], group_keys=False).apply(add_lag_features)
-        if n_lag>0:
-            for lag in range(1, n_lag+1):
-                FEATURES.append(f'lag_{lag}')
-
-        #-- train data / test data splitting --#
-        train = df_model.loc[(df_model.index > start_date) & (df_model.index <= train_period)]
-        test = df_model.loc[df_model.index > train_period]
-
-        #-- RandomForest --#
-        # define train / test data 
-        X_train = train[FEATURES]
-        y_train = train[TARGET]
-        X_test = test[FEATURES]
-        y_test = test[TARGET]
-        
-        # training
-        rf = RandomForestClassifier(n_estimators=10000)
-        rf.fit(X_train, y_train)
-        
-        # test forecasting
-        test['prediction'] = rf.predict(X_test)
-
-        #-- result --#
-        # result1: feature importance
-        # self.feature_importance(reg)
-
-        # result2: forecasting curve (entire period)
-        # self.draw_demand_curve_entire_period(test, df_model, TARGET)
-
-        # result3: evaluate classification accuracy
-        df_reg_metrics = self.evaluate_classification_accuracy(test)
 
     # function: creation of timebased feature data 
     def create_time_based_feature(self, df):
@@ -322,6 +230,16 @@ class RandomForest:
             df_part = df_part.merge(g[['prediction']], how='left', left_index=True, right_index=True)
             ax = df_part[[TARGET]].plot(figsize=(15,5))
             df_part['prediction'].plot(ax=ax, style=".")
+            plt.title(f"demand curve: Dealer={dealer}, Part={part}")
+            plt.legend()
+            plt.tight_layout()
+            plt.show()
+    
+    # function: draw the demand curve
+    def draw_demand_curve_prediction_period(self, df_test, TARGET):
+        for (dealer, part), g in df_test.groupby(['dealer_id', 'part_type']):
+            ax = g[[TARGET]].plot(figsize=(15,5))
+            g['prediction'].plot(ax=ax, style=".")
             plt.title(f"demand curve: Dealer={dealer}, Part={part}")
             plt.legend()
             plt.tight_layout()
