@@ -65,7 +65,7 @@ The system consists of three major components:
 _Open and execute `notebooks/main.ipynb`. The workflow is structured into three phases:_
 
 ### Phase 1: Demand Generator  
-'''python
+```python
 from datetime import datetime
 
 start_time = datetime(2024, 12, 31)
@@ -90,10 +90,10 @@ sim = Simulator(
     n_part_range = n_part_range
 )
 events = sim.run()
-'''
+```
 
 ### Phase 2: Forecasting
-'''python
+```python
 import forecast as forecast_md
 import importlib
 importlib.reload(forecast_md)
@@ -113,10 +113,10 @@ ForecastMK = ForecastMK(
     train_days
 )
 ForecastMK.mk_forecast_model()
-'''
+```
 
 ### Phase 3: Cost Simulation & Inventory Policy
-''' python
+```python
 import os, sys
 sys.path.append(os.path.abspath('./lib/cost'))
 
@@ -203,10 +203,10 @@ for model in forecast_model_list:
             print(kpi_results)
             dda.summrize_results_for_TSA()
             dda.corrcoef_results_for_TSA()
-'''
+```
 
 ### Output & Comparison
-''' python
+```python
 import importlib
 import ResultComparison as comp_mod
 importlib.reload(comp_mod)
@@ -215,4 +215,4 @@ ResultComparison = comp_mod.ResultComparison
 rscmp = ResultComparison()
 noise_list = []
 rscmp.visual_multiple_feature_results(feature_type_list, ML_model, TSA_model, noise_list)
-'''
+```
