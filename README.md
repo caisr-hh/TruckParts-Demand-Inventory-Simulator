@@ -10,48 +10,6 @@ The system consists of three major components:
    - Dealer-part-level KPIs: total costs, immediate service level (ISL), stockouts, total demand, fulfilled/backorder counts, **aggregated across all parts for each forecasting model**.  
    - Cost comparison charts: total cost by model (aggregated across all parts)
 
-## 📁 Repository Structure  
-```│── lib/
-│ └── cost/
-│   ├── Preprocessor.py
-│   ├── simulationLogic.py
-│   ├── inventoryPolices.py
-│   ├── costTracker.py
-│   ├── eventManagement.py
-│   ├── orderManagement.py
-│   ├── stateManagement.py
-│   ├── timeManagement.py
-│   ├── timeStamp.py
-│   ├── plotMetrics.py
-│   └── DemandDataManagement.py
-│ └── demand/
-│   ├── Environment.py
-│   ├── EVENT.py
-│   ├── dealer.py
-│   ├── truck.py
-│   ├── part.py
-│   ├── FailureModel.py
-│   ├── forecast.py
-│   ├── IntermittentAlignmentError.py
-│   ├── Noise_model.py
-│   ├── Parameter.py
-│   ├── RandomForest.py
-│   ├── SVR.py
-│   └── ARIMA.py
-│── notebooks/
-│ └── main.ipynb # Main workflow notebook
-│── data/
-│ ├── demand/ # Generated demand datasets
-│ ├── XGBoost/ # Forecasted demand data and simulated results
-│ ├── RandomForest/
-│ ├── SVR/
-│ └── ARIMA/
-│── main.ipynb
-│── requirements.txt # Python dependencies
-└── README.md
-```
-
-
 ## 🚀 Getting Started  
 ### 1. Clone the repository  
 `git clone https://github.com/SoFukuhara/PartDemand_Simulator.git`
@@ -65,6 +23,8 @@ The system consists of three major components:
 _Open and execute `notebooks/main.ipynb`. The workflow is structured into three phases:_
 
 ### Phase 1: Demand Generator  
+The demand generator produces time-series demand data based on the hierarchical structure of dealers, trucks and parts.
+Parameterization includes start time, end time, time interval, number of dealers, range of truck fleet sizes per dealer, and number of parts per truck.
 ```python
 from datetime import datetime
 
@@ -93,6 +53,7 @@ events = sim.run()
 ```
 
 ### Phase 2: Forecasting
+The forecasting module builds prediction models for the synthetic demand data generated in Phase 1. It supports multiple model families (e.g., machine-learning models such as XGBoost, SVR, RandomForest, and time-series models such as ARIMA) and allows flexible feature types (basic features and historical features).
 ```python
 import forecast as forecast_md
 import importlib
@@ -116,6 +77,7 @@ ForecastMK.mk_forecast_model()
 ```
 
 ### Phase 3: Cost Simulation & Inventory Policy
+The cost simulation uses the synthtic and forecast demands to evaluate inventory management policies in a dealer-truck-part network. It integrates inventory policy parameters (lead time, service level, initial stock, review period) with simulation logic to compute key performance indicators such as total cost, service level, stockouts, filled/backordered units.
 ```python
 import os, sys
 sys.path.append(os.path.abspath('./lib/cost'))
@@ -206,6 +168,7 @@ for model in forecast_model_list:
 ```
 
 ### Output & Comparison
+The output module aggregates results over all parts for each forecasting model and feature type. It generates visualisations comparing forecast accuracy (MAE, RMSE, IAE) and cost performance across model/feature combinations.
 ```python
 import importlib
 import ResultComparison as comp_mod
@@ -215,4 +178,44 @@ ResultComparison = comp_mod.ResultComparison
 rscmp = ResultComparison()
 noise_list = []
 rscmp.visual_multiple_feature_results(feature_type_list, ML_model, TSA_model, noise_list)
+```
+## 📁 Repository Structure  
+```│── lib/
+│ └── cost/
+│   ├── Preprocessor.py
+│   ├── simulationLogic.py
+│   ├── inventoryPolices.py
+│   ├── costTracker.py
+│   ├── eventManagement.py
+│   ├── orderManagement.py
+│   ├── stateManagement.py
+│   ├── timeManagement.py
+│   ├── timeStamp.py
+│   ├── plotMetrics.py
+│   └── DemandDataManagement.py
+│ └── demand/
+│   ├── Environment.py
+│   ├── EVENT.py
+│   ├── dealer.py
+│   ├── truck.py
+│   ├── part.py
+│   ├── FailureModel.py
+│   ├── forecast.py
+│   ├── IntermittentAlignmentError.py
+│   ├── Noise_model.py
+│   ├── Parameter.py
+│   ├── RandomForest.py
+│   ├── SVR.py
+│   └── ARIMA.py
+│── notebooks/
+│ └── main.ipynb # Main workflow notebook
+│── data/
+│ ├── demand/ # Generated demand datasets
+│ ├── XGBoost/ # Forecasted demand data and simulated results
+│ ├── RandomForest/
+│ ├── SVR/
+│ └── ARIMA/
+│── main.ipynb
+│── requirements.txt # Python dependencies
+└── README.md
 ```
