@@ -11,44 +11,6 @@ The system consists of three major components:
    - Cost comparison charts: total cost by model (aggregated across all parts)
 
 ## 📁 Repository Structure  
-│── lib/
-│ └── cost/
-│   ├── Preprocessor.py
-│   ├── simulationLogic.py
-│   ├── inventoryPolices.py
-│   ├── costTracker.py
-│   ├── eventManagement.py
-│   ├── orderManagement.py
-│   ├── stateManagement.py
-│   ├── timeManagement.py
-│   ├── timeStamp.py
-│   ├── plotMetrics.py
-│   └── DemandDataManagement.py
-│ └── demand/
-│   ├── Environment.py
-│   ├── EVENT.py
-│   ├── dealer.py
-│   ├── truck.py
-│   ├── part.py
-│   ├── FailureModel.py
-│   ├── forecast.py
-│   ├── IntermittentAlignmentError.py
-│   ├── Noise_model.py
-│   ├── Parameter.py
-│   ├── RandomForest.py
-│   ├── SVR.py
-│   └── ARIMA.py
-│── notebooks/
-│ └── main.ipynb # Main workflow notebook
-│── data/
-│ ├── demand/ # Generated demand datasets
-│ ├── XGBoost/ # Forecasted demand data and simulated results
-│ ├── RandomForest/
-│ ├── SVR/
-│ └── ARIMA/
-│── main.ipynb
-│── requirements.txt # Python dependencies
-└── README.md
 ```│── lib/
 │ └── cost/
 │   ├── Preprocessor.py
@@ -86,7 +48,7 @@ The system consists of three major components:
 │ └── ARIMA/
 │── main.ipynb
 │── requirements.txt # Python dependencies
-└── README.md```
+└── README.md
 
 
 
