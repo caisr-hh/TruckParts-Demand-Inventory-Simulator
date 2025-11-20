@@ -1,4 +1,3 @@
-::contentReference[oaicite:0]{index=0}
 # PartDemand_Simulator
 ## 🔍 Overview
 This repository provides the implementation and supplementary materials used in the paper “[Paper Title]”.
@@ -12,10 +11,6 @@ The system consists of three major components:
    - Cost comparison charts: total cost by model (aggregated across all parts)
 
 ## 📁 Repository Structure  
-│── src/
-│ ├── demand_generator.py # Demand generation module
-│ ├── forecasting_model.py # Forecasting module
-│ └── … # Additional core modules
 │── lib/
 │ └── cost/
 │   ├── Preprocessor.py
@@ -54,17 +49,53 @@ The system consists of three major components:
 │── main.ipynb
 │── requirements.txt # Python dependencies
 └── README.md
+```│── lib/
+│ └── cost/
+│   ├── Preprocessor.py
+│   ├── simulationLogic.py
+│   ├── inventoryPolices.py
+│   ├── costTracker.py
+│   ├── eventManagement.py
+│   ├── orderManagement.py
+│   ├── stateManagement.py
+│   ├── timeManagement.py
+│   ├── timeStamp.py
+│   ├── plotMetrics.py
+│   └── DemandDataManagement.py
+│ └── demand/
+│   ├── Environment.py
+│   ├── EVENT.py
+│   ├── dealer.py
+│   ├── truck.py
+│   ├── part.py
+│   ├── FailureModel.py
+│   ├── forecast.py
+│   ├── IntermittentAlignmentError.py
+│   ├── Noise_model.py
+│   ├── Parameter.py
+│   ├── RandomForest.py
+│   ├── SVR.py
+│   └── ARIMA.py
+│── notebooks/
+│ └── main.ipynb # Main workflow notebook
+│── data/
+│ ├── demand/ # Generated demand datasets
+│ ├── XGBoost/ # Forecasted demand data and simulated results
+│ ├── RandomForest/
+│ ├── SVR/
+│ └── ARIMA/
+│── main.ipynb
+│── requirements.txt # Python dependencies
+└── README.md```
+
+
 
 ## 🚀 Getting Started  
 ### 1. Clone the repository  
-'''bash
-git clone https://github.com/yourname/yourrepo.git
-'''
+`git clone https://github.com/SoFukuhara/PartDemand_Simulator.git`
 
 ### 2. Install dependencies  
-'''
-pip install -r requirements.txt
-'''
+`pip install -r requirements.txt`
 (Recommended Python version: Python 3.11)
 
 
