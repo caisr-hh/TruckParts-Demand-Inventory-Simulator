@@ -1,4 +1,4 @@
-# PartDemand_Simulator
+# TruckParts Demand & Inventory Simulator
 ## 🔍 Overview
 This repository provides the implementation and supplementary materials used in the paper “[Paper Title]”.
 The system consists of three major components:
