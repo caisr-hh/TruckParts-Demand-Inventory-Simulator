@@ -49,7 +49,7 @@ The system consists of three major components:
 │── main.ipynb
 │── requirements.txt # Python dependencies
 └── README.md
-
+```
 
 
 ## 🚀 Getting Started  
