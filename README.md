@@ -27,7 +27,6 @@ The demand generator produces time-series demand data based on the hierarchical 
 Parameterization includes start time, end time, time interval, number of dealers, range of truck fleet sizes per dealer, and number of parts per truck.
 ```python
 from datetime import datetime
-
 start_time = datetime(2024, 12, 31)
 end_time   = datetime(2027, 12, 31)
 delta_time = 1
@@ -55,9 +54,6 @@ events = sim.run()
 ### Phase 2: Forecasting
 The forecasting module builds prediction models for the synthetic demand data generated in Phase 1. It supports multiple model families (e.g., machine-learning models such as XGBoost, SVR, RandomForest, and time-series models such as ARIMA) and allows flexible feature types (basic features and historical features).
 ```python
-import forecast as forecast_md
-import importlib
-importlib.reload(forecast_md)
 ForecastMK = forecast_md.ForecastMaker
 
 start_date          = '2025-01-01'
@@ -79,15 +75,6 @@ ForecastMK.mk_forecast_model()
 ### Phase 3: Cost Simulation & Inventory Policy
 The cost simulation uses the synthtic and forecast demands to evaluate inventory management policies in a dealer-truck-part network. It integrates inventory policy parameters (lead time, service level, initial stock, review period) with simulation logic to compute key performance indicators such as total cost, service level, stockouts, filled/backordered units.
 ```python
-import os, sys
-sys.path.append(os.path.abspath('./lib/cost'))
-
-from Preprocessor import Preprocessor
-from simulationLogic import SimulationConfig, IntegratedSimulator
-from inventoryPolices import StandardInventoryPolicy, InventoryPolicyParams, PredictiveIntervalPolicy, PredictiveInventoryPolicyParams
-from plotMetrics import MetricsPlotter
-from DemandDataArrangement import DemandDataArrange
-
 lead_time     = 14     # days between placing order and arrival
 service_level = 0.95   # desired fill rate
 initial_stock = 80     # initial stock per part
@@ -207,6 +194,7 @@ rscmp.visual_multiple_feature_results(feature_type_list, ML_model, TSA_model, no
 │   ├── RandomForest.py
 │   ├── SVR.py
 │   └── ARIMA.py
+│ └── ResultComparison.py
 │── notebooks/
 │ └── main.ipynb # Main workflow notebook
 │── data/
