@@ -209,8 +209,9 @@ rscmp.visual_multiple_feature_results(feature_type_list, ML_model, TSA_model, no
 ```
 
 ## 📝 References
-Cost simulater:
-```
+The following work has been used in the design of the Cost Simulator module:
+
+```bibtex
 @mastersthesis{kamil2025prediction,
   author       = {Kamil, Jaffar and Amer, Mohamed},
   title        = {Prediction Intervals for ML-driven Automotive Service Market Logistics},
