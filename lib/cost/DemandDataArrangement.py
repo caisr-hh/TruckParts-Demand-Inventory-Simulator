@@ -369,7 +369,7 @@ class DemandDataArrange:
 
         # sum of holding cost
         sum_holding = holding_cost.sum()
-        print(sum_holding)
+        # print(sum_holding)
 
         # sum of order cost
         sum_order = order_cost.sum()
@@ -442,7 +442,7 @@ class DemandDataArrange:
 
         corr_matrix = df_corr.corr()
         corr_matrix.to_csv(os.path.join(feas_dir,"CorrCoef.csv"))
-        print(corr_matrix)
+        # print(corr_matrix)
 
     # method: compute correlation coefficient
     def corrcoef_results_for_TSA(self):
@@ -481,5 +481,5 @@ class DemandDataArrange:
 
         corr_matrix = df_corr.corr()
         corr_matrix.to_csv(os.path.join(self.MLmodel_dir,"CorrCoef.csv"))
-        print(corr_matrix)
+        # print(corr_matrix)
 

@@ -260,7 +260,7 @@ class IntegratedSimulator:
     
     def run(self) -> Dict:
         """Run the simulation and return results"""
-        print(f"Starting simulation at {self.clock.format_time()}")
+        # print(f"Starting simulation at {self.clock.format_time()}")
         event_count = {
             EventType.DEMAND: 0,
             EventType.INVENTORY_CHECK: 0,
@@ -271,15 +271,16 @@ class IntegratedSimulator:
             # Get next event
             event = self.event_queue.get_next_event()
             if not event:
-                print("\nFinal event counts:")
+                # print("\nFinal event counts:")
                 for event_type, count in event_count.items():
-                    print(f"{event_type}: {count}")
+                    # print(f"{event_type}: {count}")
+                    pass
                 break
                 
             # Update simulation time
             self.clock.set_time(event.time)
             
-            print(event)
+            # print(event)
             # Debug logging
             #print(f"\nProcessing event: {event.event_type} at {event.time}")
             #print(f"Current stock level: {self.state_manager.get_current_state('SIMULATED_PART', 1).current_stock}")
@@ -306,8 +307,8 @@ class IntegratedSimulator:
             self.state_manager.update_service_level(event.time)
             self.state_manager.update_costs(event.time)
         
-        print(f"Simulation completed at {self.clock.format_time()}")
-        print(event_count)
+        # print(f"Simulation completed at {self.clock.format_time()}")
+        # print(event_count)
         
         # Compile and return results
         return self._get_results()
