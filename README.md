@@ -215,7 +215,7 @@ This simulator is described in the following paper:
 @article{IDA2026,
   author       = {Fukuhara, So and Alabdallah, Abdallah and Gunasekara, Nuwan and Nowaczyk, Slawomir},
   title        = {Bridging Forecast Accuracy and Inventory KPIs: A Simulation-Based Evaluation Framework},
-  journal      = {arXiv preprint arXiv:2601.21844},
+  journal      = {Symposium on Intelligent Data Analysis (IDA)},
   year         = {2026},
   url          = {https://arxiv.org/abs/2601.21844}
 }
