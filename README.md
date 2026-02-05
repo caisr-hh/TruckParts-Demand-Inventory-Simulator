@@ -1,6 +1,6 @@
 # TruckParts Demand & Inventory Simulator
 ## 🔍 Overview
-This repository provides the implementation and supplementary materials used in the paper “[Paper Title]”.
+This repository provides the implementation and supplementary materials used in the paper “Bridging Forecast Accuracy and Inventory KPIs: A Simulation-Based Evaluation Framework”.
 The system consists of three major components:
 1. **Demand Generator** — generates synthetic demand time-series data for truck parts under a dealer–truck–part hierarchy.  
 2. **Forecasting Model** — builds and evaluates various forecasting techniques, including machine learning and time-series analysis, to predict future parts demand.  
@@ -212,13 +212,11 @@ rscmp.visual_multiple_feature_results(feature_type_list, ML_model, TSA_model, no
 The following work has been used in the design of the Cost Simulator module:
 
 ```bibtex
-@mastersthesis{kamil2025prediction,
-  author       = {Kamil, Jaffar and Amer, Mohamed},
-  title        = {Prediction Intervals for ML-driven Automotive Service Market Logistics},
-  school       = {Halmstad University},
-  year         = {2025},
-  type         = {Master's Thesis},
-  address      = {Halmstad, Sweden},
-  note         = {Master’s Programme in Artificial Intelligence},
+@mastersthesis{fukuhara2026bridging,
+  author       = {Fukuhara, So and Alabdallah, Abdallah and Gunasekara, Nuwan and Nowaczyk, Slawomir},
+  title        = {Bridging Forecast Accuracy and Inventory KPIs: A Simulation-Based Evaluation Framework},
+  journal      = {arXiv preprint arXiv:2601.21844},
+  year         = {2026},
+  url          = {https://arxiv.org/abs/2601.21844}
 }
 ```
