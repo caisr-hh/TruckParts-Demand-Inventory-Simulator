@@ -1,10 +1,10 @@
 # TruckParts Demand & Inventory Simulator
 ## 🔍 Overview
-This repository provides the implementation and supplementary materials used in the paper “[Paper Title]”.
+This repository provides the implementation and supplementary materials used in the paper “Bridging Forecast Accuracy and Inventory KPIs: A Simulation-Based Evaluation Framework”.
 The system consists of three major components:
 1. **Demand Generator** — generates synthetic demand time-series data for truck parts under a dealer–truck–part hierarchy.  
 2. **Forecasting Model** — builds and evaluates various forecasting techniques, including machine learning and time-series analysis, to predict future parts demand.  
-3. **Cost Simulator** — simulates inventory management using demand and forecast data, applies inventory policies, computes costs and KPIs, and supports comparative evaluation of forecasting models. (This module builds on the methodology presented in Jaffar Kamil & Mohamed Amer (2025) Prediction Intervals for ML-driven Automotive Service Market Logistics.)
+3. **Cost Simulator** — simulates inventory management using demand and forecast data, applies inventory policies, computes costs and KPIs, and supports comparative evaluation of forecasting models. 
 4. **Outputs** — the system produces result datasets and visualisations including (but not limited to):  
    - Forecasting accuracy metrics: MAE, RMSE, R2 and IAE, **aggregated across all parts for each forecasting model**.
    - Dealer-part-level KPIs: total costs, immediate service level (ISL), stockouts, total demand, fulfilled/backorder counts, **aggregated across all parts for each forecasting model**.  
@@ -209,16 +209,14 @@ rscmp.visual_multiple_feature_results(feature_type_list, ML_model, TSA_model, no
 ```
 
 ## 📝 References
-The following work has been used in the design of the Cost Simulator module:
+This simulator is described in the following paper:
 
 ```bibtex
-@mastersthesis{kamil2025prediction,
-  author       = {Kamil, Jaffar and Amer, Mohamed},
-  title        = {Prediction Intervals for ML-driven Automotive Service Market Logistics},
-  school       = {Halmstad University},
-  year         = {2025},
-  type         = {Master's Thesis},
-  address      = {Halmstad, Sweden},
-  note         = {Master’s Programme in Artificial Intelligence},
+@article{IDA2026,
+  author       = {Fukuhara, So and Alabdallah, Abdallah and Gunasekara, Nuwan and Nowaczyk, Slawomir},
+  title        = {Bridging Forecast Accuracy and Inventory KPIs: A Simulation-Based Evaluation Framework},
+  journal      = {arXiv preprint arXiv:2601.21844},
+  year         = {2026},
+  url          = {https://arxiv.org/abs/2601.21844}
 }
 ```
