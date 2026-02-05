@@ -212,7 +212,7 @@ rscmp.visual_multiple_feature_results(feature_type_list, ML_model, TSA_model, no
 The following work has been used in the design of the Cost Simulator module:
 
 ```bibtex
-@mastersthesis{fukuhara2026bridging,
+@article{IDA2026,
   author       = {Fukuhara, So and Alabdallah, Abdallah and Gunasekara, Nuwan and Nowaczyk, Slawomir},
   title        = {Bridging Forecast Accuracy and Inventory KPIs: A Simulation-Based Evaluation Framework},
   journal      = {arXiv preprint arXiv:2601.21844},
