@@ -15,11 +15,18 @@ The system consists of three major components:
 `git clone https://github.com/SoFukuhara/PartDemand_Simulator.git`
 
 ### 2. Install dependencies  
+**Windows (CMD)**
 ```
 python -m pip install --upgrade pip setuptools wheel
 python -m pip install -r requirements.txt
 ```
-Note: If installation fails (especially on Windows), please make sure you are using Python 3.11 and the latest pip.
+**macOS/Linux**
+```
+python -m pip install --upgrade pip setuptools wheel
+python -m pip install -r requirements.txt
+```
+
+(Note: If installation fails, please update pip and ensure you are using Python 3.11.)
 
 
 ## 🚀 Running the Workflow  
