@@ -12,7 +12,7 @@ The system consists of three major components:
 
 ## 🚀 Getting Started  
 ### 1. Clone the repository  
-`git clone https://github.com/SoFukuhara/PartDemand_Simulator.git`
+`git clone https://github.com/caisr-hh/TruckParts-Demand-Inventory-Simulator.git`
 
 ### 2. Install dependencies  
 **Windows (CMD)**
